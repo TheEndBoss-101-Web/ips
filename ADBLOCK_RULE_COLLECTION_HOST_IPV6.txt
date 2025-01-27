@@ -1,0 +1,10 @@
+
+#Title: Adblock-Rule-Collection-Host-IPv6
+#Description: A host file summarizing multiple ad filter rules, updated every 20 minutes to ensure timely synchronization with upstream filters and reduce false positives.
+#Homepage: https://github.com/REIJI007/Adblock-Rule-Collection
+#LICENSE1: https://github.com/REIJI007/Adblock-Rule-Collection/blob/main/LICENSE-GPL 3.0
+#LICENSE2: https://github.com/REIJI007/Adblock-Rule-Collection/blob/main/LICENSE-CC-BY-NC-SA 4.0
+#Generation Time: 2025-01-28 01:47:35
+#Valid Rule Count: 1
+
+:: test.example.com
