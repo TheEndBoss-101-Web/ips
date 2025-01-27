@@ -199,7 +199,7 @@ def main():
     print("Starting to download filters...")
 
     filter_urls = [
-"https://raw.githubusercontent.com/TheEndBoss-101-Web/ips/refs/heads/main/Adblock_Rule_Generator.py",
+"https://raw.githubusercontent.com/TheEndBoss-101-Web/ips/refs/heads/main/src/list.txt",
     ]
 
     save_path = os.path.join(os.getcwd(), 'ADBLOCK_RULE_COLLECTION.txt')
