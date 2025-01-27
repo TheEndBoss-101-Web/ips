@@ -1,4 +1,4 @@
-name: Generate and Push Adblock Rule Collection
+name: Generate and Push Rule Collection
 
 on:
   schedule:
@@ -62,4 +62,4 @@ jobs:
         echo "Push failed after multiple attempts, exiting with error."
         exit 1  # Exit with error if all attempts fail
       env:
-        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

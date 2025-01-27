@@ -12,16 +12,16 @@ jobs:
       - name: Delete all tags
         run: |
           # Get all tags
-          tags=$(curl -s -H "Authorization: token ${{ secrets.TOKEN }}" \
+          tags=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                "https://api.github.com/repos/${{ github.repository }}/git/refs/tags" \
                | jq -r '.[].ref' | sed 's|refs/tags/||')
           
           # Iterate over and delete each tag
           for tag in $tags
           do
-            curl -X DELETE -H "Authorization: token ${{ secrets.TOKEN }}" \
+            curl -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                  "https://api.github.com/repos/${{ github.repository }}/git/refs/tags/$tag"
             echo "Deleted tag: $tag"
           done
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

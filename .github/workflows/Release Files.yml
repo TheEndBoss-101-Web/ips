@@ -40,13 +40,13 @@ jobs:
             fi
           done
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}  # Use custom token for authentication
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use custom token for authentication
 
       - name: Create Release  # Create a new release
         id: create_release  # Set step ID for future references
         uses: actions/create-release@v1  # Use the official create-release action
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}  # Use custom token for authentication
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use custom token for authentication
         with:
           tag_name: release-${{ env.time }}  # Use current time as the tag name
           release_name: Release ${{ env.time }}  # Use current time as the release name
@@ -57,7 +57,7 @@ jobs:
       - name: Upload ADBLOCK_RULE_COLLECTION.txt  # Upload ADBLOCK_RULE_COLLECTION.txt file
         uses: actions/upload-release-asset@v1  # Use the official upload-release-asset action
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}  # Use custom token for authentication
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use custom token for authentication
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}  # Use the upload URL from the release creation step
           asset_path: ADBLOCK_RULE_COLLECTION.txt  # File path to upload
@@ -67,7 +67,7 @@ jobs:
       - name: Upload ADBLOCK_RULE_COLLECTION_HOST_IPV4.txt  # Upload ADBLOCK_RULE_COLLECTION_HOST_IPV4.txt file
         uses: actions/upload-release-asset@v1  # Use the official upload-release-asset action
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}  # Use custom token for authentication
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use custom token for authentication
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}  # Use the upload URL from the release creation step
           asset_path: ADBLOCK_RULE_COLLECTION_HOST_IPV4.txt  # File path to upload
@@ -77,7 +77,7 @@ jobs:
       - name: Upload ADBLOCK_RULE_COLLECTION_DNS.txt  # Upload ADBLOCK_RULE_COLLECTION_DNS.txt file
         uses: actions/upload-release-asset@v1  # Use the official upload-release-asset action
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}  # Use custom token for authentication
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use custom token for authentication
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}  # Use the upload URL from the release creation step
           asset_path: ADBLOCK_RULE_COLLECTION_DNS.txt  # File path to upload
@@ -87,7 +87,7 @@ jobs:
       - name: Upload ADBLOCK_RULE_COLLECTION_HOST_IPV6.txt  # Upload ADBLOCK_RULE_COLLECTION_HOST_IPV6.txt file
         uses: actions/upload-release-asset@v1  # Use the official upload-release-asset action
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}  # Use custom token for authentication
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use custom token for authentication
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}  # Use the upload URL from the release creation step
           asset_path: ADBLOCK_RULE_COLLECTION_HOST_IPV6.txt  # File path to upload
@@ -97,7 +97,7 @@ jobs:
       - name: Upload ADBLOCK_RULE_COLLECTION_DOMAIN.txt  # Upload ADBLOCK_RULE_COLLECTION_DOMAIN.txt file
         uses: actions/upload-release-asset@v1  # Use the official upload-release-asset action
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}  # Use custom token for authentication
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use custom token for authentication
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}  # Use the upload URL from the release creation step
           asset_path: ADBLOCK_RULE_COLLECTION_DOMAIN.txt  # File path to upload
