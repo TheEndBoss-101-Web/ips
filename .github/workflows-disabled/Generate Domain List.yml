@@ -69,7 +69,6 @@ jobs:
               print(f"Processed {input_file}. Total domains: {len(domains)}")
 
           process_file('ADBLOCK_RULE_COLLECTION.txt', 'ADBLOCK_RULE_COLLECTION_DOMAIN.txt', 'Adblock-Rule-Collection-Domain')
-          process_file('ADBLOCK_RULE_COLLECTION_Lite.txt', 'ADBLOCK_RULE_COLLECTION_DOMAIN_Lite.txt', 'Adblock-Rule-Collection-Domain-Lite')
           EOF
 
       # Step 5: Commit and push changes
