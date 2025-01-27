@@ -5,7 +5,10 @@
 !LICENSE1: https://github.com/TheEndBoss-101-Web/ips/blob/main/LICENSE-GPL 3.0
 !LICENSE2: https://github.com/TheEndBoss-101-Web/ips/blob/main/LICENSE-CC-BY-NC-SA 4.0
 !This code is based on https://github.com/REIJI007/Adblock-Rule-Collection/
-!Generated on: 2025-01-28 02:14:51 UTC+08:00
-!Number of valid rules: 1
+!Generated on: 2025-01-28 02:20:39 UTC+08:00
+!Number of valid rules: 4
 
-||test.example.com^
+||109.123.237.33^
+||contaboserver.net^
+||goguardian.com^
+||goguardian.us^
