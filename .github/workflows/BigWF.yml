@@ -65,6 +65,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   filter-dns-rules:
+    needs: [generate_and_push]
     runs-on: ubuntu-latest
     steps:
       # Step 1: Checkout repository
@@ -173,6 +174,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   filter-domain-rules:
+    needs: [generate_and_push]
     runs-on: ubuntu-latest  # Use the latest Ubuntu environment
     steps:
       # Step 1: Checkout repository
@@ -281,6 +283,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
   filter-ipv4-rules:
+    needs: [generate_and_push]
     runs-on: ubuntu-latest
     steps:
       # Step 1: Checkout repository
@@ -390,6 +393,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   filter-ipv6-rules:
+    needs: [generate_and_push]
     runs-on: ubuntu-latest
     steps:
       # Step 1: Checkout repository
@@ -500,7 +504,7 @@ jobs:
   
   create-release:
     runs-on: ubuntu-latest  # Use the latest Ubuntu version as the runtime environment
-
+    needs: [generate_and_push, filter-dns-rules, filter-domain-rules, filter-ipv4-rules, filter-ipv6-rules]
     steps:
       - name: Clear previous logs  # Clear previous log files
         run: |
