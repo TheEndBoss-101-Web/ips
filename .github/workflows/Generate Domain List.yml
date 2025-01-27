@@ -55,9 +55,10 @@ jobs:
               header = f"""
           #Title: {title}
           #Description: A list of domains collected from multiple adblock filter rules, updated every 20 minutes to ensure real-time synchronization with upstream sources and reduce false positives.
-          #Homepage: https://github.com/REIJI007/Adblock-Rule-Collection
-          #LICENSE1: https://github.com/REIJI007/Adblock-Rule-Collection/blob/main/LICENSE-GPL 3.0
-          #LICENSE2: https://github.com/REIJI007/Adblock-Rule-Collection/blob/main/LICENSE-CC-BY-NC-SA 4.0
+          #Homepage: https://github.com/TheEndBoss-101-Web/ips
+          #LICENSE1: https://github.com/TheEndBoss-101-Web/ips/blob/main/LICENSE-GPL 3.0
+          #LICENSE2: https://github.com/TheEndBoss-101-Web/ips/blob/main/LICENSE-CC-BY-NC-SA 4.0
+          #This code is based on https://github.com/REIJI007/Adblock-Rule-Collection/
           #Generated Time: {timestamp}
           #Valid Domains Count: {len(domains)}
           """

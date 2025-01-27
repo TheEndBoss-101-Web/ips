@@ -64,16 +64,6 @@ jobs:
           asset_name: ADBLOCK_RULE_COLLECTION.txt  # Name of the file after upload
           asset_content_type: text/plain  # File content type
 
-      - name: Upload ADBLOCK_RULE_COLLECTION_Lite.txt  # Upload ADBLOCK_RULE_COLLECTION_Lite.txt file
-        uses: actions/upload-release-asset@v1  # Use the official upload-release-asset action
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}  # Use custom token for authentication
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}  # Use the upload URL from the release creation step
-          asset_path: ADBLOCK_RULE_COLLECTION_Lite.txt  # File path to upload
-          asset_name: ADBLOCK_RULE_COLLECTION_Lite.txt  # Name of the file after upload
-          asset_content_type: text/plain  # File content type
-
       - name: Upload ADBLOCK_RULE_COLLECTION_HOST.txt  # Upload ADBLOCK_RULE_COLLECTION_HOST.txt file
         uses: actions/upload-release-asset@v1  # Use the official upload-release-asset action
         env:
@@ -82,16 +72,6 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}  # Use the upload URL from the release creation step
           asset_path: ADBLOCK_RULE_COLLECTION_HOST.txt  # File path to upload
           asset_name: ADBLOCK_RULE_COLLECTION_HOST.txt  # Name of the file after upload
-          asset_content_type: text/plain  # File content type
-
-      - name: Upload ADBLOCK_RULE_COLLECTION_HOST_Lite.txt  # Upload ADBLOCK_RULE_COLLECTION_HOST_Lite.txt file
-        uses: actions/upload-release-asset@v1  # Use the official upload-release-asset action
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}  # Use custom token for authentication
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}  # Use the upload URL from the release creation step
-          asset_path: ADBLOCK_RULE_COLLECTION_HOST_Lite.txt  # File path to upload
-          asset_name: ADBLOCK_RULE_COLLECTION_HOST_Lite.txt  # Name of the file after upload
           asset_content_type: text/plain  # File content type
 
       - name: Upload ADBLOCK_RULE_COLLECTION_DNS.txt  # Upload ADBLOCK_RULE_COLLECTION_DNS.txt file
@@ -104,16 +84,6 @@ jobs:
           asset_name: ADBLOCK_RULE_COLLECTION_DNS.txt  # Name of the file after upload
           asset_content_type: text/plain  # File content type
 
-      - name: Upload ADBLOCK_RULE_COLLECTION_DNS_Lite.txt  # Upload ADBLOCK_RULE_COLLECTION_DNS_Lite.txt file
-        uses: actions/upload-release-asset@v1  # Use the official upload-release-asset action
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}  # Use custom token for authentication
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}  # Use the upload URL from the release creation step
-          asset_path: ADBLOCK_RULE_COLLECTION_DNS_Lite.txt  # File path to upload
-          asset_name: ADBLOCK_RULE_COLLECTION_DNS_Lite.txt  # Name of the file after upload
-          asset_content_type: text/plain  # File content type
-
       - name: Upload ADBLOCK_RULE_COLLECTION_HOST_IPV6.txt  # Upload ADBLOCK_RULE_COLLECTION_HOST_IPV6.txt file
         uses: actions/upload-release-asset@v1  # Use the official upload-release-asset action
         env:
@@ -124,16 +94,6 @@ jobs:
           asset_name: ADBLOCK_RULE_COLLECTION_HOST_IPV6.txt  # Name of the file after upload
           asset_content_type: text/plain  # File content type
 
-      - name: Upload ADBLOCK_RULE_COLLECTION_HOST_IPV6_Lite.txt  # Upload ADBLOCK_RULE_COLLECTION_HOST_IPV6_Lite.txt file
-        uses: actions/upload-release-asset@v1  # Use the official upload-release-asset action
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}  # Use custom token for authentication
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}  # Use the upload URL from the release creation step
-          asset_path: ADBLOCK_RULE_COLLECTION_HOST_IPV6_Lite.txt  # File path to upload
-          asset_name: ADBLOCK_RULE_COLLECTION_HOST_IPV6_Lite.txt  # Name of the file after upload
-          asset_content_type: text/plain  # File content type
-
       - name: Upload ADBLOCK_RULE_COLLECTION_DOMAIN.txt  # Upload ADBLOCK_RULE_COLLECTION_DOMAIN.txt file
         uses: actions/upload-release-asset@v1  # Use the official upload-release-asset action
         env:
@@ -142,14 +102,4 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}  # Use the upload URL from the release creation step
           asset_path: ADBLOCK_RULE_COLLECTION_DOMAIN.txt  # File path to upload
           asset_name: ADBLOCK_RULE_COLLECTION_DOMAIN.txt  # Name of the file after upload
-          asset_content_type: text/plain  # File content type
-
-      - name: Upload ADBLOCK_RULE_COLLECTION_DOMAIN_Lite.txt  # Upload ADBLOCK_RULE_COLLECTION_DOMAIN_Lite.txt file
-        uses: actions/upload-release-asset@v1  # Use the official upload-release-asset action
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}  # Use custom token for authentication
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}  # Use the upload URL from the release creation step
-          asset_path: ADBLOCK_RULE_COLLECTION_DOMAIN_Lite.txt  # File path to upload
-          asset_name: ADBLOCK_RULE_COLLECTION_DOMAIN_Lite.txt  # Name of the file after upload
           asset_content_type: text/plain  # File content type
