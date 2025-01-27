@@ -8,4 +8,12 @@
 #Number of valid rules: {len(rules)}
 #This file is the base file for genuration.
 
-0.0.0.0 test.example.com
+#0.0.0.0 test.example.com
+
+# [GoGuardian]
+||goguardian.com^
+||goguardian.us^
+
+# [contaboserver.net]
+||contaboserver.net^
+109.123.237.33
