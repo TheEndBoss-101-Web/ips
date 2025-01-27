@@ -70,7 +70,7 @@ jobs:
               
               print(f"Processed {input_file}. Total rules: {len(rules)}")
 
-          process_file('ADBLOCK_RULE_COLLECTION.txt', 'ADBLOCK_RULE_COLLECTION_HOST.txt', 'Adblock-Rule-Collection-Host')
+          process_file('ADBLOCK_RULE_COLLECTION.txt', 'ADBLOCK_RULE_COLLECTION_HOST_IPV4.txt', 'Adblock-Rule-Collection-Host-IPv4')
           EOF
 
       # Step 5: Commit and push changes
