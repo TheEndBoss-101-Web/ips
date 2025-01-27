@@ -1,4 +1,4 @@
-name: Generate IPv4 Host List
+name: Generate IPV4 Host List
 
 # Trigger conditions
 on:
@@ -78,7 +78,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          
+
           git add -A  # Add all changes
           
           attempt=0
@@ -110,7 +110,7 @@ jobs:
               else:
                   echo "Push successful."
               fi
-          else:
+          else
               echo "Commit failed after $max_attempts attempts. Continuing workflow."
           fi
         env:
