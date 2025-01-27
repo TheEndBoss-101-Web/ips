@@ -200,6 +200,9 @@ def main():
 
     filter_urls = [
 "https://raw.githubusercontent.com/TheEndBoss-101-Web/ips/refs/heads/main/src/MasterList.txt",
+
+"https://raw.githubusercontent.com/REIJI007/Adblock-Rule-Collection/refs/heads/main/ADBLOCK_RULE_COLLECTION.txt",
+
 "https://raw.githubusercontent.com/xyti/block-goguardian/main/hosts",
 "https://raw.githubusercontent.com/TheEndBoss-101-Web/ips/refs/heads/main/src/Backups/goguardian.bak.txt",
     ]
