@@ -28,7 +28,7 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add -f ADBLOCK_RULE_COLLECTION.txt ADBLOCK_RULE_COLLECTION_HOST.txt ADBLOCK_RULE_COLLECTION_DNS.txt ADBLOCK_RULE_COLLECTION_HOST_IPV6.txt ADBLOCK_RULE_COLLECTION_DOMAIN.txt timestamp.txt
+          git add -f ADBLOCK_RULE_COLLECTION.txt ADBLOCK_RULE_COLLECTION_HOST_IPV4.txt ADBLOCK_RULE_COLLECTION_DNS.txt ADBLOCK_RULE_COLLECTION_HOST_IPV6.txt ADBLOCK_RULE_COLLECTION_DOMAIN.txt timestamp.txt
           git commit -m "Forced update of adblock files and timestamp"
           for attempt in {1..5}; do  # Try 5 times
             if git push origin main; then
@@ -64,14 +64,14 @@ jobs:
           asset_name: ADBLOCK_RULE_COLLECTION.txt  # Name of the file after upload
           asset_content_type: text/plain  # File content type
 
-      - name: Upload ADBLOCK_RULE_COLLECTION_HOST.txt  # Upload ADBLOCK_RULE_COLLECTION_HOST.txt file
+      - name: Upload ADBLOCK_RULE_COLLECTION_HOST_IPV4.txt  # Upload ADBLOCK_RULE_COLLECTION_HOST_IPV4.txt file
         uses: actions/upload-release-asset@v1  # Use the official upload-release-asset action
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}  # Use custom token for authentication
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}  # Use the upload URL from the release creation step
-          asset_path: ADBLOCK_RULE_COLLECTION_HOST.txt  # File path to upload
-          asset_name: ADBLOCK_RULE_COLLECTION_HOST.txt  # Name of the file after upload
+          asset_path: ADBLOCK_RULE_COLLECTION_HOST_IPV4.txt  # File path to upload
+          asset_name: ADBLOCK_RULE_COLLECTION_HOST_IPV4.txt  # Name of the file after upload
           asset_content_type: text/plain  # File content type
 
       - name: Upload ADBLOCK_RULE_COLLECTION_DNS.txt  # Upload ADBLOCK_RULE_COLLECTION_DNS.txt file
