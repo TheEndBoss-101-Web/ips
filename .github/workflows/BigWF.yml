@@ -174,7 +174,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   filter-domain-rules:
-    needs: [generate_and_push]
+    needs: [generate_and_push, filter-dns-rules]
     runs-on: ubuntu-latest  # Use the latest Ubuntu environment
     steps:
       # Step 1: Checkout repository
@@ -283,7 +283,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
   filter-ipv4-rules:
-    needs: [generate_and_push]
+    needs: [generate_and_push, filter-dns-rules, filter-domain-rules]
     runs-on: ubuntu-latest
     steps:
       # Step 1: Checkout repository
@@ -393,7 +393,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   filter-ipv6-rules:
-    needs: [generate_and_push]
+    needs: [generate_and_push, filter-dns-rules, filter-domain-rules, filter-ipv4-rules]
     runs-on: ubuntu-latest
     steps:
       # Step 1: Checkout repository
