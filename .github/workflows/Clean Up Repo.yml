@@ -1,0 +1,157 @@
+name: Delete All Workflows
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs every midnight
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  delete-all-workflows:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete all workflows
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get repository information
+          repo_info=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}")
+          
+          # Check if repository information was successfully retrieved
+          if [ $(echo "$repo_info" | jq -r '.message // empty') = "Not Found" ]; then
+            echo "Error: Unable to access repository. Please check your permissions."
+            exit 1
+          fi
+          
+          # Extract owner and repository name
+          OWNER=$(echo "$repo_info" | jq -r '.owner.login')
+          REPO=$(echo "$repo_info" | jq -r '.name')
+          
+          echo "Repository: $OWNER/$REPO"
+          
+          # Set pagination parameters
+          per_page=100
+          page=1
+          
+          while true; do
+            echo "Fetching page $page of all workflow runs..."
+            
+            # Get workflow runs (no filtering by status)
+            response=$(curl -s -w "\n%{http_code}" -H "Authorization: token $GITHUB_TOKEN" \
+              "https://api.github.com/repos/$OWNER/$REPO/actions/runs?per_page=$per_page&page=$page")
+            
+            http_status=$(echo "$response" | tail -n1)
+            body=$(echo "$response" | sed '$d')
+            
+            echo "HTTP Status: $http_status"
+            echo "Response body:"
+            echo "$body"
+            
+            if [ "$http_status" -ne 200 ]; then
+              echo "Error: HTTP request failed with status $http_status"
+              echo "Please ensure that GITHUB_TOKEN has the necessary permissions."
+              exit 1
+            fi
+            
+            # Check if response is empty
+            if [ -z "$body" ]; then
+              echo "Error: Empty response received from GitHub API"
+              exit 1
+            fi
+            
+            # Validate JSON format
+            if ! echo "$body" | jq empty; then
+              echo "Error: Invalid JSON received from GitHub API"
+              exit 1
+            fi
+            
+            # Extract workflow run IDs
+            run_ids=$(echo "$body" | jq -r '.workflow_runs[].id')
+            
+            # If there are no more workflow runs, exit the loop
+            if [ -z "$run_ids" ]; then
+              echo "No more runs found. Exiting loop."
+              break
+            fi
+            
+            # Delete each workflow run
+            for run_id in $run_ids; do
+              echo "Deleting workflow run $run_id"
+              delete_response=$(curl -s -w "\n%{http_code}" -X DELETE -H "Authorization: token $GITHUB_TOKEN" \
+                "https://api.github.com/repos/$OWNER/$REPO/actions/runs/$run_id")
+              
+              delete_status=$(echo "$delete_response" | tail -n1)
+              delete_body=$(echo "$delete_response" | sed '$d')
+              
+              if [ "$delete_status" -ne 204 ]; then
+                echo "Warning: Failed to delete run $run_id. Status: $delete_status"
+                echo "Response: $delete_body"
+              else
+                echo "Successfully deleted run $run_id"
+              fi
+            done
+            
+            # Increment page number to fetch the next page of results
+            page=$((page + 1))
+          done
+          
+          echo "All workflow runs have been processed."
+  delete-all-tags:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete all tags
+        run: |
+          # Get all tags
+          tags=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+               "https://api.github.com/repos/${{ github.repository }}/git/refs/tags" \
+               | jq -r '.[].ref' | sed 's|refs/tags/||')
+          
+          # Iterate over and delete each tag
+          for tag in $tags
+          do
+            curl -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                 "https://api.github.com/repos/${{ github.repository }}/git/refs/tags/$tag"
+            echo "Deleted tag: $tag"
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  delete-releases:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: List and delete all releases (with pagination)
+        run: |
+          # Initialize page number and release ID list
+          page=1
+          releases=""
+
+          # Get release IDs from all pages of releases
+          while true; do
+            result=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/releases?per_page=100&page=$page" | jq -r '.[].id')
+
+            if [ -z "$result" ]; then
+              break
+            fi
+
+            releases="$releases $result"
+            page=$((page + 1))
+          done
+
+          # Check if there are releases
+          if [ -z "$releases" ]; then
+            echo "No releases found."
+            exit 0
+          fi
+
+          # Delete each release
+          for id in $releases; do
+            echo "Deleting release ID: $id"
+            curl -s -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/$id"
+          done
+
+          echo "All releases deleted."
