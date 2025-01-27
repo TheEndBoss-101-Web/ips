@@ -1,4 +1,4 @@
-name: Generate IPV6 Host List
+name: Generate IPv6 Host List
 
 # Trigger conditions
 on:

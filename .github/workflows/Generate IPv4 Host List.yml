@@ -1,4 +1,4 @@
-name: Generate IPV4 Host List
+name: Generate IPv4 Host List
 
 # Trigger conditions
 on:
