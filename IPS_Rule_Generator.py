@@ -199,12 +199,13 @@ def main():
     print("Starting to download filters...")
 
     filter_urls = [
-"https://raw.githubusercontent.com/TheEndBoss-101-Web/ips/refs/heads/main/ListSrc/AdBlock/MasterList.txt",
+"https://raw.githubusercontent.com/TheEndBoss-101-Web/ips/refs/heads/main/ListSrc/IPS/MasterList.txt",
 
-"https://raw.githubusercontent.com/REIJI007/Adblock-Rule-Collection/refs/heads/main/ADBLOCK_RULE_COLLECTION.txt",
+"https://raw.githubusercontent.com/xyti/block-goguardian/main/hosts",
+"https://raw.githubusercontent.com/TheEndBoss-101-Web/ips/refs/heads/main/ListSrc/IPS/Backups/goguardian.bak.txt",
     ]
 
-    save_path = os.path.join(os.getcwd(), 'ADBLOCK_RULE_COLLECTION.txt')
+    save_path = os.path.join(os.getcwd(), 'IPS_RULE_COLLECTION.txt')
     rules = asyncio.run(download_filters(filter_urls))
     validated_rules = validate_rules(rules)
     write_rules_to_file(validated_rules, save_path)

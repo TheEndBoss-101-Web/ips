@@ -1,4 +1,4 @@
-name: Main Workflow
+name: AdBlock Workflow
 
 on:
   schedule:
@@ -544,8 +544,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use custom token for authentication
         with:
-          tag_name: release-${{ env.time }}  # Use current time as the tag name
-          release_name: Release ${{ env.time }}  # Use current time as the release name
+          tag_name: adblock-release-${{ env.time }}  # Use current time as the tag name
+          release_name: AdBlock Release ${{ env.time }}  # Use current time as the release name
           body: "Periodic release of adblock files."  # Release description
           draft: false  # Publish as a final release
           prerelease: false  # Do not publish as a pre-release
