@@ -5,9 +5,11 @@
 !LICENSE1: https://github.com/TheEndBoss-101-Web/ips/blob/main/LICENSE-GPL 3.0
 !LICENSE2: https://github.com/TheEndBoss-101-Web/ips/blob/main/LICENSE-CC-BY-NC-SA 4.0
 !This code is based on https://github.com/REIJI007/Adblock-Rule-Collection/
-!Generated on: 2025-01-28 02:51:06 UTC+08:00
-!Number of valid rules: 258
+!Generated on: 2025-01-28 02:58:14 UTC+08:00
+!Number of valid rules: 263
 
+.sex
+.xxx
 ||109.123.237.33^
 ||34-211-217-149.sockets.goguardian.com^
 ||34-211-23-76.sockets.goguardian.com^
@@ -53,6 +55,7 @@
 ||54-148-239-86.sockets.goguardian.com^
 ||54-70-0-115.sockets.goguardian.com^
 ||54-71-160-34.sockets.goguardian.com^
+||70.184.161.172^
 ||account.goguardian.com^
 ||admin-updates.goguardian.com^
 ||admin.goguardian.com^
@@ -241,12 +244,14 @@
 ||training.goguardian.com^
 ||university.goguardian.com^
 ||videos.goguardian.com^
+||vmi2204261.contaboserver.net^
 ||vpn.goguardian.com^
 ||waluigi.goguardian.com^
 ||westinghouse.goguardian.com^
 ||whiteboard-stg.goguardian.com^
 ||whiteboard.goguardian.com^
 ||wiki.goguardian.com^
+||wsip-70-184-161-172.hr.hr.cox.net^
 ||www.chatws.goguardian.com^
 ||www.goguardian.com^
 ||www.jira.goguardian.com^
