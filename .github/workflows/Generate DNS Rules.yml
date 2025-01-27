@@ -1,4 +1,4 @@
-name: Generate AdBlock DNS Rules
+name: Generate DNS Rules
 
 # Trigger conditions
 on:

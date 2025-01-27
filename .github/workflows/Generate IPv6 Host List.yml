@@ -1,4 +1,4 @@
-name: Generate AdBlock IPV6 Host List
+name: Generate IPV6 Host List
 
 # Trigger conditions
 on:

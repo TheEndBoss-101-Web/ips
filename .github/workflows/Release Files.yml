@@ -1,4 +1,4 @@
-name: Release Adblock File  # Workflow name
+name: Release Files  # Workflow name
 
 on:
   schedule:
