@@ -199,7 +199,9 @@ def main():
     print("Starting to download filters...")
 
     filter_urls = [
-"https://raw.githubusercontent.com/TheEndBoss-101-Web/ips/refs/heads/main/src/list.txt",
+"https://raw.githubusercontent.com/TheEndBoss-101-Web/ips/refs/heads/main/src/MasterList.txt",
+"https://raw.githubusercontent.com/xyti/block-goguardian/main/hosts",
+"https://raw.githubusercontent.com/TheEndBoss-101-Web/ips/refs/heads/main/src/goguardian.bak.txt",
     ]
 
     save_path = os.path.join(os.getcwd(), 'ADBLOCK_RULE_COLLECTION.txt')
