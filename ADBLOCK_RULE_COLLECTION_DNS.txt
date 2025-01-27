@@ -4,7 +4,7 @@
 !LICENSE1: https://github.com/TheEndBoss-101-Web/ips/blob/main/LICENSE-GPL 3.0
 !LICENSE2: https://github.com/TheEndBoss-101-Web/ips/blob/main/LICENSE-CC-BY-NC-SA 4.0
 !This code is based on https://github.com/REIJI007/Adblock-Rule-Collection/
-!Generation Time: 2025-01-28 03:13:17
+!Generation Time: 2025-01-28 03:24:45
 !Valid Rule Count: 259
 
 ||34-211-217-149.sockets.goguardian.com^
