@@ -25,18 +25,18 @@ jobs:
       
       - name: Clear history and keep files
         run: |
-          # 保存当前文件的树对象
+          # Save the current file tree object
           TREE=$(git write-tree)
-          
-          # 创建一个新的提交，使用保存的树对象
+
+          # Create a new commit using the saved tree object
           NEW_COMMIT=$(echo "${{ github.event.inputs.commit_message }}" | git commit-tree $TREE)
-          
-          # 将main分支指向新的提交
+
+          # Point the main branch to the new commit
           git update-ref refs/heads/main $NEW_COMMIT
-          
-          # 强制推送
+
+          # Force push
           git push -f origin main
-          
-          # 清理
+
+          # Clean up
           git reflog expire --expire=now --all
           git gc --prune=now --aggressive

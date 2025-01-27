@@ -2,8 +2,8 @@ name: Delete All Workflows
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # 每天午夜运行
-  workflow_dispatch:  # 允许手动触发
+    - cron: '0 0 * * *'  # Runs every midnight
+  workflow_dispatch:  # Allows manual triggering
 
 jobs:
   delete-all-workflows:
@@ -13,30 +13,30 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 获取仓库信息
+          # Get repository information
           repo_info=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
             "https://api.github.com/repos/${{ github.repository }}")
           
-          # 检查仓库信息是否成功获取
+          # Check if repository information was successfully retrieved
           if [ $(echo "$repo_info" | jq -r '.message // empty') = "Not Found" ]; then
             echo "Error: Unable to access repository. Please check your permissions."
             exit 1
           fi
           
-          # 提取所有者和仓库名
+          # Extract owner and repository name
           OWNER=$(echo "$repo_info" | jq -r '.owner.login')
           REPO=$(echo "$repo_info" | jq -r '.name')
           
           echo "Repository: $OWNER/$REPO"
           
-          # 设置分页参数
+          # Set pagination parameters
           per_page=100
           page=1
           
           while true; do
             echo "Fetching page $page of all workflow runs..."
             
-            # 获取工作流运行（不再过滤状态）
+            # Get workflow runs (no filtering by status)
             response=$(curl -s -w "\n%{http_code}" -H "Authorization: token $GITHUB_TOKEN" \
               "https://api.github.com/repos/$OWNER/$REPO/actions/runs?per_page=$per_page&page=$page")
             
@@ -53,28 +53,28 @@ jobs:
               exit 1
             fi
             
-            # 检查响应是否为空
+            # Check if response is empty
             if [ -z "$body" ]; then
               echo "Error: Empty response received from GitHub API"
               exit 1
             fi
             
-            # 验证JSON格式
+            # Validate JSON format
             if ! echo "$body" | jq empty; then
               echo "Error: Invalid JSON received from GitHub API"
               exit 1
             fi
             
-            # 提取工作流运行 ID
+            # Extract workflow run IDs
             run_ids=$(echo "$body" | jq -r '.workflow_runs[].id')
             
-            # 如果没有更多的工作流运行，退出循环
+            # If there are no more workflow runs, exit the loop
             if [ -z "$run_ids" ]; then
               echo "No more runs found. Exiting loop."
               break
             fi
             
-            # 删除每个工作流运行
+            # Delete each workflow run
             for run_id in $run_ids; do
               echo "Deleting workflow run $run_id"
               delete_response=$(curl -s -w "\n%{http_code}" -X DELETE -H "Authorization: token $GITHUB_TOKEN" \
@@ -91,7 +91,7 @@ jobs:
               fi
             done
             
-            # 增加页数以获取下一页结果
+            # Increment page number to fetch the next page of results
             page=$((page + 1))
           done
           

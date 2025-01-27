@@ -2,45 +2,45 @@ name: Generate and Push Adblock Rule Collection Lite
 
 on:
   schedule:
-    - cron: "*/20 * * * *"  # 每20分钟运行一次
+    - cron: "*/20 * * * *"  # Run every 20 minutes
   push:
     branches:
-      - main  # 确保在main分支上运行
-  workflow_dispatch:  # 允许手动触发工作流
+      - main  # Ensure it runs on the main branch
+  workflow_dispatch:  # Allow manual trigger of the workflow
 
 jobs:
   generate_and_push:
-    runs-on: ubuntu-latest  # 使用最新的Ubuntu环境
+    runs-on: ubuntu-latest  # Use the latest Ubuntu environment
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3  # 签出仓库的代码
+      uses: actions/checkout@v3  # Checkout the repository's code
 
     - name: Set up Python
-      uses: actions/setup-python@v4  # 设置Python环境
+      uses: actions/setup-python@v4  # Set up the Python environment
       with:
-        python-version: '3.x'  # 指定Python版本
+        python-version: '3.x'  # Specify the Python version
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip  # 升级pip
-        pip install requests aiohttp  # 安装requests和aiohttp库
+        python -m pip install --upgrade pip  # Upgrade pip
+        pip install requests aiohttp  # Install requests and aiohttp libraries
 
     - name: Run Adblock Rule Generator Lite
-      run: python Adblock_Rule_Generator_Lite.py  # 运行脚本生成广告过滤器文件
+      run: python Adblock_Rule_Generator_Lite.py  # Run the script to generate the adblock rule file
 
     - name: Commit and push changes
-      id: push_changes  # 设置步骤ID以供后续引用
+      id: push_changes  # Set step ID for later reference
       run: |
-        # 配置git用户信息
+        # Configure git user information
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git add ADBLOCK_RULE_COLLECTION_Lite.txt
         
-        # 尝试提交更改
+        # Attempt to commit changes
         git commit -m "Update Adblock rules" || echo "No changes to commit"
         
-        # 尝试推送更改前先拉取远程仓库
+        # Pull the latest changes from the remote repository before attempting to push
         for attempt in {1..5}; do
           echo "Attempt $attempt: Pulling latest changes from remote..."
           if git pull --rebase; then
@@ -49,17 +49,17 @@ jobs:
             echo "Pull failed, skipping pull and continuing to push."
           fi
 
-          # 尝试推送更改
+          # Attempt to push changes
           if git push; then
             echo "Push successful."
-            exit 0  # 退出脚本
+            exit 0  # Exit the script
           else
             echo "Push failed, retrying in $((attempt * 10)) seconds..."
-            sleep $((attempt * 10))  # 指数级退避，首次等待10秒，第二次20秒，依此类推
+            sleep $((attempt * 10))  # Exponential backoff, waiting 10 seconds, then 20 seconds, and so on
           fi
         done
         
         echo "Push failed after multiple attempts, exiting with error."
-        exit 1  # 最终失败退出
+        exit 1  # Exit on final failure
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
