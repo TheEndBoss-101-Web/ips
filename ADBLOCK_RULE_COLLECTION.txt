@@ -1,0 +1,137 @@
+
+!Title: IPS-Collection / Adblock Collection
+!Description: An ad filter subscription that summarizes multiple ad-blocking filter rules, updated every 20 minutes to ensure timely synchronization with upstream to reduce false positives.
+!Homepage: https://github.com/TheEndBoss-101-Web/ips
+!LICENSE1: https://github.com/TheEndBoss-101-Web/ips/blob/main/LICENSE-GPL 3.0
+!LICENSE2: https://github.com/TheEndBoss-101-Web/ips/blob/main/LICENSE-CC-BY-NC-SA 4.0
+!This code is based on https://github.com/REIJI007/Adblock-Rule-Collection/
+!Generated on: 2025-01-28 01:42:35 UTC+08:00
+!Number of valid rules: 127
+
+"""
+"https://raw.githubusercontent.com/TheEndBoss-101-Web/ips/refs/heads/main/Adblock_Rule_Generator.py",
+]
+all_rules = set()
+all_rules.update(rules)
+async def download_filter(session, url, retries=5):
+async def download_filters(urls):
+async with aiohttp.ClientSession() as session:
+async with session.get(url, ssl=False) as response:
+attempt += 1
+attempt = 0
+await asyncio.sleep(wait_time)
+break
+domain = parts[1].split('#')[0].strip()
+domain = parts[1].strip()
+domain = server_info[1].strip()
+domain_pattern = r'^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$'
+elif line.startswith('server='):
+else:
+except Exception as e:
+f.write('\n')
+f.write(header)
+f.writelines(f"{rule}\n" for rule in sorted(rules) if rule is not None)
+filter_urls = [
+for future in asyncio.as_completed(tasks):
+for line in lines:
+for package in packages:
+for rule in rules:
+format='%(asctime)s - %(levelname)s - %(message)s')
+from datetime import datetime, timezone, timedelta
+from urllib3.exceptions import InsecureRequestWarning
+header = f"""
+if __name__ == '__main__':
+if attempt < retries:
+if importlib.util.find_spec(package) is None:
+if is_domain(line):
+if is_ip_address(line):
+if is_ip_domain_mapping(line) or is_ipv6_domain_mapping(line):
+if is_ipv6_address(line):
+if is_valid_rule(line):
+if is_valid_rule(rule):
+if len(parts) == 2:
+if len(parts) == 3:
+if len(parts) >= 2:
+if len(server_info) == 3:
+if line.startswith('0.0.0.0') or line.startswith('127.0.0.1'):
+if line.startswith('::') or line.startswith('::1'):
+if line.startswith('address='):
+if not is_valid_rule(line):
+if not line or line.startswith(('!', '#', '[', ';', '//', '/*', '*/')):
+if processed_line is not None:
+if response.status == 200:
+if sys.stdin.isatty():
+if target_ip in ['127.0.0.1', '0.0.0.0', '::1', '::']:
+import aiohttp
+import asyncio
+import importlib.util
+import logging
+import os
+import re
+import subprocess
+import sys
+import time
+import warnings
+input("Press Enter to exit...")
+install_packages(required_packages)
+line = line.strip()
+lines = text.splitlines()
+logging.basicConfig(filename='adblock_rule_downloader.log', level=logging.INFO,
+logging.error(f"Error downloading {url}: {e}")
+logging.error(f"Failed to download from {url} with status code {response.status}")
+logging.error(f"Max retries reached for {url}")
+logging.info("Starting to download filters...")
+logging.info(f"Downloading from {url}, attempt {attempt + 1}")
+logging.info(f"Package '{package}' installed successfully.")
+logging.info(f"Package '{package}' is already installed.")
+logging.info(f"Package '{package}' is not installed. Installing...")
+logging.info(f"Retrying in {wait_time} seconds...")
+logging.info(f"Successfully downloaded from {url}")
+logging.info(f"Successfully wrote rules to {save_path}")
+logging.info(f"Writing {len(rules)} rules to file {save_path}")
+main()
+now = datetime.now(timezone(timedelta(hours=8)))
+parts = line.split('=')
+parts = line.split('=', 1)
+parts = line.split()
+print("Non-interactive mode, exiting...")
+print("Starting to download filters...")
+print(f"Number of valid rules: {len(rules)}")
+print(f"Successfully wrote rules to {save_path}")
+processed_line = process_line(line)
+required_packages = ["aiohttp", "urllib3", "certifi"]
+return False
+return None
+return True
+return all_rules
+return f"||{domain}^"
+return f"||{line}^"
+return line
+return re.match(domain_pattern, line) is not None
+return re.match(r'^[\da-fA-F:]+$', line) is not None
+return re.match(r'^[\da-fA-F:]+\s+\S+', line) is not None
+return re.match(r'^\d{1,3}(\.\d{1,3}){3}$', line) is not None
+return re.match(r'^\d{1,3}(\.\d{1,3}){3}\s+\S+', line) is not None
+return rules
+return validated_rules
+rules = asyncio.run(download_filters(filter_urls))
+rules = await future
+rules = set()
+rules.add(processed_line)
+save_path = os.path.join(os.getcwd(), 'ADBLOCK_RULE_COLLECTION.txt')
+server_info = parts[1].split('/')
+subprocess.run([sys.executable, "-m", "pip", "install", package], check=True)
+target_ip = parts[2].strip()
+target_ip = server_info[2].strip()
+tasks = [download_filter(session, url) for url in urls]
+text = await response.text()
+timestamp = now.strftime('%Y-%m-%d %H:%M:%S %Z')
+try:
+validated_rules = set()
+validated_rules = validate_rules(rules)
+validated_rules.add(rule)
+wait_time = 2 ** attempt
+warnings.simplefilter('ignore', InsecureRequestWarning)
+while attempt < retries:
+with open(save_path, 'w', encoding='utf-8') as f:
+write_rules_to_file(validated_rules, save_path)
