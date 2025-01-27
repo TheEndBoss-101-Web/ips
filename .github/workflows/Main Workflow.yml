@@ -1,0 +1,601 @@
+name: Main Workflow
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"  # Run every 30 minutes
+  push:
+    branches:
+      - main  # Ensure it runs on the main branch
+  workflow_dispatch:  # Allow manual triggering of the workflow
+
+jobs:
+  generate_and_push:
+    runs-on: ubuntu-latest  # Use the latest Ubuntu environment
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3  # Checkout the repository's code
+
+    - name: Set up Python
+      uses: actions/setup-python@v4  # Set up the Python environment
+      with:
+        python-version: '3.x'  # Specify Python version
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip  # Upgrade pip
+        pip install requests aiohttp  # Install requests and aiohttp libraries
+
+    - name: Run Adblock Rule Generator
+      run: python Adblock_Rule_Generator.py  # Run the script to generate the Adblock filter file
+
+    - name: Commit and push changes
+      id: push_changes  # Set step ID for later reference
+      run: |
+        # Configure git user information
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add ADBLOCK_RULE_COLLECTION.txt
+        
+        # Attempt to commit changes
+        git commit -m "Update Adblock rules" || echo "No changes to commit"
+        
+        # Attempt to pull from the remote repository before pushing changes
+        for attempt in {1..5}; do
+          echo "Attempt $attempt: Pulling latest changes from remote..."
+          if git pull --rebase; then
+            echo "Pull successful."
+          else
+            echo "Pull failed, skipping pull and continuing to push."
+          fi
+
+          # Attempt to push changes
+          if git push; then
+            echo "Push successful."
+            exit 0  # Exit the script
+          else
+            echo "Push failed, retrying in $((attempt * 10)) seconds..."
+            sleep $((attempt * 10))  # Exponential backoff: first wait 10 seconds, then 20 seconds, etc.
+          fi
+        done
+        
+        echo "Push failed after multiple attempts, exiting with error."
+        exit 1  # Exit with error if all attempts fail
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  filter-dns-rules:
+    needs: [generate_and_push]
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'  # Use the latest Python 3 version
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytz  # Install the pytz library for handling time zones
+
+      # Step 4: Process AdBlock rules
+      - name: Process AdBlock rules
+        run: |
+          python3 << EOF
+          import datetime
+          import pytz
+          import re
+
+          # DNS domain validation regex that conforms to DNS standards
+          dns_domain_regex = re.compile(
+              r'^(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\.[A-Za-z0-9-]{1,63})*\.[A-Za-z]{2,}$'
+          )
+
+          def process_file(input_file, output_file, title):
+              with open(input_file, 'r', encoding='utf-8') as f:
+                  rules = []
+                  for line in f:
+                      line = line.strip()
+                      match = re.match(r'^(\@\@)?\|\|([a-zA-Z0-9.-]+)\^$', line)
+                      if match:
+                          domain = match.group(2)
+                          if dns_domain_regex.match(domain):
+                              rules.append(line)
+              
+              tz = pytz.timezone('Asia/Shanghai')
+              timestamp = datetime.datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S')
+              
+              header = f"""!Title: {title}
+          !Description: A DNS filter subscription summarizing multiple ad filtering rules, updated every 20 minutes to ensure timely synchronization with upstream filters and reduce false positives.
+          !Homepage: https://github.com/TheEndBoss-101-Web/ips
+          !LICENSE1: https://github.com/TheEndBoss-101-Web/ips/blob/main/LICENSE-GPL 3.0
+          !LICENSE2: https://github.com/TheEndBoss-101-Web/ips/blob/main/LICENSE-CC-BY-NC-SA 4.0
+          !This code is based on https://github.com/REIJI007/Adblock-Rule-Collection/
+          !Generation Time: {timestamp}
+          !Valid Rule Count: {len(rules)}
+          """
+              
+              with open(output_file, 'w', encoding='utf-8') as f:
+                  f.write(header + '\n')
+                  f.write('\n'.join(rules))
+              
+              print(f"Processed {input_file}. Total rules: {len(rules)}")
+
+          process_file('ADBLOCK_RULE_COLLECTION.txt', 'ADBLOCK_RULE_COLLECTION_DNS.txt', 'Adblock-Rule-Collection-Dns')
+          EOF
+
+      # Step 5: Commit and push changes
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          git add -A
+          
+          attempt=0
+          max_attempts=5
+          success=false
+          
+          git fetch origin main  
+          git merge origin/main --strategy-option=ours || git merge --abort || echo "Merge conflicts resolved automatically using 'ours' strategy."
+
+          while [ $attempt -lt $max_attempts ]; do
+              git commit -m "Update AdBlock DNS Rules with strict filtering" && success=true && break
+              attempt=$((attempt + 1))
+              echo "Commit failed, retrying in 10 seconds... (Attempt $attempt of $max_attempts)"
+              sleep 10
+          done
+          
+          if [ "$success" = true ]; then
+              attempt=0
+              success=false
+              while [ $attempt -lt $max_attempts ]; do
+                  git push origin main && success=true && break
+                  attempt=$((attempt + 1))
+                  echo "Push failed, retrying in 10 seconds... (Attempt $attempt of $max_attempts)"
+                  sleep 10
+              done
+              
+              if [ "$success" = false ]; then
+                  echo "Push failed after $max_attempts attempts. Continuing workflow."
+              else
+                  echo "Push successful."
+              fi
+          else
+              echo "Commit failed after $max_attempts attempts. Continuing workflow."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  filter-domain-rules:
+    needs: [generate_and_push, filter-dns-rules]
+    runs-on: ubuntu-latest  # Use the latest Ubuntu environment
+    steps:
+      # Step 1: Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'  # Use the latest Python 3 version
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytz  # Install pytz library for handling time zones
+
+      # Step 4: Process AdBlock rules
+      - name: Process AdBlock rules
+        run: |
+          python3 << EOF
+          import datetime
+          import pytz
+          import re
+
+          dns_domain_regex = re.compile(
+              r'^(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\.[A-Za-z0-9-]{1,63})*\.[A-Za-z]{2,}$'
+          )
+
+          def process_file(input_file, output_file, title):
+              with open(input_file, 'r', encoding='utf-8') as f:
+                  domains = []
+                  for line in f:
+                      line = line.strip()
+                      match = re.match(r'^\|\|([a-zA-Z0-9.-]+)\^$', line)
+                      if match:
+                          domain = match.group(1)
+                          if not re.match(r'^\d+\.\d+\.\d+\.\d+$', domain) and dns_domain_regex.match(domain):
+                              domains.append(domain)
+              
+              tz = pytz.timezone('Asia/Shanghai')
+              timestamp = datetime.datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S')
+              
+              header = f"""
+          #Title: {title}
+          #Description: A list of domains collected from multiple adblock filter rules, updated every 20 minutes to ensure real-time synchronization with upstream sources and reduce false positives.
+          #Homepage: https://github.com/TheEndBoss-101-Web/ips
+          #LICENSE1: https://github.com/TheEndBoss-101-Web/ips/blob/main/LICENSE-GPL 3.0
+          #LICENSE2: https://github.com/TheEndBoss-101-Web/ips/blob/main/LICENSE-CC-BY-NC-SA 4.0
+          #This code is based on https://github.com/REIJI007/Adblock-Rule-Collection/
+          #Generated Time: {timestamp}
+          #Valid Domains Count: {len(domains)}
+          """
+              
+              with open(output_file, 'w', encoding='utf-8') as f:
+                  f.write(header + '\n')
+                  f.write('\n'.join(domains) + '\n')
+              
+              print(f"Processed {input_file}. Total domains: {len(domains)}")
+
+          process_file('ADBLOCK_RULE_COLLECTION.txt', 'ADBLOCK_RULE_COLLECTION_DOMAIN.txt', 'Adblock-Rule-Collection-Domain')
+          EOF
+
+      # Step 5: Commit and push changes
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          git add -A
+          
+          attempt=0
+          max_attempts=5
+          success=false
+          
+          git fetch origin main  
+          git merge origin/main --strategy-option=ours || git merge --abort || echo "Merge conflicts resolved automatically using 'ours' strategy."
+
+          while [ $attempt -lt $max_attempts ]; do
+              git commit -m "Update AdBlock Domain Rules with strict filtering" && success=true && break
+              attempt=$((attempt + 1))
+              echo "Commit failed, retrying in 10 seconds... (Attempt $attempt of $max_attempts)"
+              sleep 10
+          done
+          
+          if [ "$success" = true ]; then
+              attempt=0
+              success=false
+              while [ $attempt -lt $max_attempts ]; do
+                  git push origin main && success=true && break
+                  attempt=$((attempt + 1))
+                  echo "Push failed, retrying in 10 seconds... (Attempt $attempt of $max_attempts)"
+                  sleep 10
+              done
+              
+              if [ "$success" = false ]; then
+                  echo "Push failed after $max_attempts attempts. Continuing workflow."
+              else
+                  echo "Push successful."
+              fi
+          else
+              echo "Commit failed after $max_attempts attempts. Continuing workflow."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
+  filter-ipv4-rules:
+    needs: [generate_and_push, filter-dns-rules, filter-domain-rules]
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'  # Use the latest Python 3 version
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytz  # Install pytz library to handle time zones
+
+      # Step 4: Process AdBlock rules
+      - name: Process AdBlock rules
+        run: |
+          python3 << EOF
+          import datetime
+          import pytz
+          import re
+
+          # DNS domain validation regex that conforms to DNS standards
+          dns_domain_regex = re.compile(
+              r'^(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\.[A-Za-z0-9-]{1,63})*\.[A-Za-z]{2,}$'
+          )
+
+          def process_file(input_file, output_file, title):
+              with open(input_file, 'r', encoding='utf-8') as f:
+                  rules = []
+                  for line in f:
+                      line = line.strip()
+                      match = re.match(r'^\|\|([a-zA-Z0-9.-]+)\^$', line)
+                      if match:
+                          domain = match.group(1)
+                          if not re.match(r'^\d+\.\d+\.\d+\.\d+$', domain) and dns_domain_regex.match(domain):
+                              rules.append(f"0.0.0.0 {domain}")
+              
+              tz = pytz.timezone('Asia/Shanghai')
+              timestamp = datetime.datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S')
+              
+              header = f"""
+          #Title: {title}
+          #Description: A host file summarizing multiple ad filter rules, updated every 20 minutes to ensure timely synchronization with upstream filters and reduce false positives.
+          #Homepage: https://github.com/TheEndBoss-101-Web/ips
+          #LICENSE1: https://github.com/TheEndBoss-101-Web/ips/blob/main/LICENSE-GPL 3.0
+          #LICENSE2: https://github.com/TheEndBoss-101-Web/ips/blob/main/LICENSE-CC-BY-NC-SA 4.0
+          #This code is based on https://github.com/REIJI007/Adblock-Rule-Collection/
+          #Generation Time: {timestamp}
+          #Valid Rule Count: {len(rules)}
+          """
+              
+              with open(output_file, 'w', encoding='utf-8') as f:
+                  f.write(header + '\n')
+                  f.write('\n'.join(rules) + '\n')
+              
+              print(f"Processed {input_file}. Total rules: {len(rules)}")
+
+          process_file('ADBLOCK_RULE_COLLECTION.txt', 'ADBLOCK_RULE_COLLECTION_HOST_IPV4.txt', 'Adblock-Rule-Collection-Host-IPv4')
+          EOF
+
+      # Step 5: Commit and push changes
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          git add -A  # Add all changes
+          
+          attempt=0
+          max_attempts=5
+          success=false
+
+          git fetch origin main  
+          git merge origin/main --strategy-option=ours || git merge --abort || echo "Merge conflicts resolved automatically using 'ours' strategy."
+
+          while [ $attempt -lt $max_attempts ]; do
+              git commit -m "Update AdBlock Host Rules with strict filtering" && success=true && break
+              attempt=$((attempt + 1))
+              echo "Commit failed, retrying in 10 seconds... (Attempt $attempt of $max_attempts)"
+              sleep 10
+          done
+          
+          if [ "$success" = true ]; then
+              attempt=0
+              success=false
+              while [ $attempt -lt $max_attempts ]; do
+                  git push origin main && success=true && break
+                  attempt=$((attempt + 1))
+                  echo "Push failed, retrying in 10 seconds... (Attempt $attempt of $max_attempts)"
+                  sleep 10
+              done
+              
+              if [ "$success" = false ]; then
+                  echo "Push failed after $max_attempts attempts. Continuing workflow."
+              else:
+                  echo "Push successful."
+              fi
+          else
+              echo "Commit failed after $max_attempts attempts. Continuing workflow."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  filter-ipv6-rules:
+    needs: [generate_and_push, filter-dns-rules, filter-domain-rules, filter-ipv4-rules]
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'  # Use the latest Python 3 version
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytz  # Install pytz library to handle time zones
+
+      # Step 4: Process AdBlock rules
+      - name: Process AdBlock rules
+        run: |
+          python3 << EOF
+          import datetime
+          import pytz
+          import re
+
+          # DNS domain validation regex that conforms to DNS standards
+          dns_domain_regex = re.compile(
+              r'^(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\.[A-Za-z0-9-]{1,63})*\.[A-Za-z]{2,}$'
+          )
+
+          def process_file(input_file, output_file, title):
+              with open(input_file, 'r', encoding='utf-8') as f:
+                  rules = []
+                  for line in f:
+                      line = line.strip()
+                      match = re.match(r'^\|\|([a-zA-Z0-9.-]+)\^$', line)
+                      if match:
+                          domain = match.group(1)
+                          if not re.match(r'^\d+\.\d+\.\d+\.\d+$', domain) and dns_domain_regex.match(domain):
+                              rules.append(f":: {domain}")
+              
+              tz = pytz.timezone('Asia/Shanghai')
+              timestamp = datetime.datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S')
+              
+              header = f"""
+          #Title: {title}
+          #Description: A host file summarizing multiple ad filter rules, updated every 20 minutes to ensure timely synchronization with upstream filters and reduce false positives.
+          #Homepage: https://github.com/TheEndBoss-101-Web/ips
+          #LICENSE1: https://github.com/TheEndBoss-101-Web/ips/blob/main/LICENSE-GPL 3.0
+          #LICENSE2: https://github.com/TheEndBoss-101-Web/ips/blob/main/LICENSE-CC-BY-NC-SA 4.0
+          #This code is based on https://github.com/REIJI007/Adblock-Rule-Collection/
+          #Generation Time: {timestamp}
+          #Valid Rule Count: {len(rules)}
+          """
+              
+              with open(output_file, 'w', encoding='utf-8') as f:
+                  f.write(header + '\n')
+                  f.write('\n'.join(rules) + '\n')
+              
+              print(f"Processed {input_file}. Total rules: {len(rules)}")
+
+          process_file('ADBLOCK_RULE_COLLECTION.txt', 'ADBLOCK_RULE_COLLECTION_HOST_IPV6.txt', 'Adblock-Rule-Collection-Host-IPv6')
+          EOF
+
+      # Step 5: Commit and push changes
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          git add -A  # Add all changes
+          
+          attempt=0
+          max_attempts=5
+          success=false
+
+          git fetch origin main  
+          git merge origin/main --strategy-option=ours || git merge --abort || echo "Merge conflicts resolved automatically using 'ours' strategy."
+
+          while [ $attempt -lt $max_attempts ]; do
+              git commit -m "Update AdBlock Host Rules with IPv6 format" && success=true && break
+              attempt=$((attempt + 1))
+              echo "Commit failed, retrying in 10 seconds... (Attempt $attempt of $max_attempts)"
+              sleep 10
+          done
+          
+          if [ "$success" = true ]; then
+              attempt=0
+              success=false
+              while [ $attempt -lt $max_attempts ]; do
+                  git push origin main && success=true && break
+                  attempt=$((attempt + 1))
+                  echo "Push failed, retrying in 10 seconds... (Attempt $attempt of $max_attempts)"
+                  sleep 10
+              done
+              
+              if [ "$success" = false ]; then
+                  echo "Push failed after $max_attempts attempts. Continuing workflow."
+              else:
+                  echo "Push successful."
+              fi
+          else
+              echo "Commit failed after $max_attempts attempts. Continuing workflow."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
+  create-release:
+    runs-on: ubuntu-latest  # Use the latest Ubuntu version as the runtime environment
+    needs: [generate_and_push, filter-dns-rules, filter-domain-rules, filter-ipv4-rules, filter-ipv6-rules]
+    steps:
+      - name: Clear previous logs  # Clear previous log files
+        run: |
+          sudo rm -rf /home/runner/runners/*/_diag/*.log || true
+    
+      - name: Checkout code  # Checkout the code
+        uses: actions/checkout@v3  # Use the official checkout action to fetch the repository code
+
+      - name: Get current time  # Get the current time
+        id: current-time  # Set step ID for future references
+        run: echo "time=$(date +'%y%m%d%H%M')" >> $GITHUB_ENV  # Get the current time and store it as a GitHub Actions environment variable
+
+      - name: Update timestamp file  # Update the timestamp file
+        run: echo "${{ env.time }}" > timestamp.txt  # Write the current time to timestamp.txt
+
+      - name: Force add and commit changes  # Force add and commit changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -f ADBLOCK_RULE_COLLECTION.txt ADBLOCK_RULE_COLLECTION_HOST_IPV4.txt ADBLOCK_RULE_COLLECTION_DNS.txt ADBLOCK_RULE_COLLECTION_HOST_IPV6.txt ADBLOCK_RULE_COLLECTION_DOMAIN.txt timestamp.txt
+          git commit -m "Forced update of adblock files and timestamp"
+          for attempt in {1..5}; do  # Try 5 times
+            if git push origin main; then
+              break
+            else
+              echo "Push failed, attempting to pull and rebase..."
+              git pull --rebase  # Pull and rebase changes from remote
+              sleep $((attempt * 10))  # Exponential backoff, wait 10 seconds on first attempt, 20 seconds on second, and so on
+            fi
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use custom token for authentication
+
+      - name: Create Release  # Create a new release
+        id: create_release  # Set step ID for future references
+        uses: actions/create-release@v1  # Use the official create-release action
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use custom token for authentication
+        with:
+          tag_name: release-${{ env.time }}  # Use current time as the tag name
+          release_name: Release ${{ env.time }}  # Use current time as the release name
+          body: "Periodic release of adblock files."  # Release description
+          draft: false  # Publish as a final release
+          prerelease: false  # Do not publish as a pre-release
+
+      - name: Upload ADBLOCK_RULE_COLLECTION.txt  # Upload ADBLOCK_RULE_COLLECTION.txt file
+        uses: actions/upload-release-asset@v1  # Use the official upload-release-asset action
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use custom token for authentication
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}  # Use the upload URL from the release creation step
+          asset_path: ADBLOCK_RULE_COLLECTION.txt  # File path to upload
+          asset_name: ADBLOCK_RULE_COLLECTION.txt  # Name of the file after upload
+          asset_content_type: text/plain  # File content type
+
+      - name: Upload ADBLOCK_RULE_COLLECTION_HOST_IPV4.txt  # Upload ADBLOCK_RULE_COLLECTION_HOST_IPV4.txt file
+        uses: actions/upload-release-asset@v1  # Use the official upload-release-asset action
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use custom token for authentication
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}  # Use the upload URL from the release creation step
+          asset_path: ADBLOCK_RULE_COLLECTION_HOST_IPV4.txt  # File path to upload
+          asset_name: ADBLOCK_RULE_COLLECTION_HOST_IPV4.txt  # Name of the file after upload
+          asset_content_type: text/plain  # File content type
+
+      - name: Upload ADBLOCK_RULE_COLLECTION_DNS.txt  # Upload ADBLOCK_RULE_COLLECTION_DNS.txt file
+        uses: actions/upload-release-asset@v1  # Use the official upload-release-asset action
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use custom token for authentication
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}  # Use the upload URL from the release creation step
+          asset_path: ADBLOCK_RULE_COLLECTION_DNS.txt  # File path to upload
+          asset_name: ADBLOCK_RULE_COLLECTION_DNS.txt  # Name of the file after upload
+          asset_content_type: text/plain  # File content type
+
+      - name: Upload ADBLOCK_RULE_COLLECTION_HOST_IPV6.txt  # Upload ADBLOCK_RULE_COLLECTION_HOST_IPV6.txt file
+        uses: actions/upload-release-asset@v1  # Use the official upload-release-asset action
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use custom token for authentication
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}  # Use the upload URL from the release creation step
+          asset_path: ADBLOCK_RULE_COLLECTION_HOST_IPV6.txt  # File path to upload
+          asset_name: ADBLOCK_RULE_COLLECTION_HOST_IPV6.txt  # Name of the file after upload
+          asset_content_type: text/plain  # File content type
+
+      - name: Upload ADBLOCK_RULE_COLLECTION_DOMAIN.txt  # Upload ADBLOCK_RULE_COLLECTION_DOMAIN.txt file
+        uses: actions/upload-release-asset@v1  # Use the official upload-release-asset action
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Use custom token for authentication
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}  # Use the upload URL from the release creation step
+          asset_path: ADBLOCK_RULE_COLLECTION_DOMAIN.txt  # File path to upload
+          asset_name: ADBLOCK_RULE_COLLECTION_DOMAIN.txt  # Name of the file after upload
+          asset_content_type: text/plain  # File content type

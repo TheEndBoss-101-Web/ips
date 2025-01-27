@@ -1,0 +1,37 @@
+name: Clear Git History
+on:
+  workflow_dispatch:
+
+jobs:
+  clear-history:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+      
+      - name: Clear history and keep files
+        run: |
+          # Save the current file tree object
+          TREE=$(git write-tree)
+
+          # Create a new commit using the saved tree object
+          NEW_COMMIT=$(echo "${{ github.event.inputs.commit_message }}" | git commit-tree $TREE)
+
+          # Point the main branch to the new commit
+          git update-ref refs/heads/main $NEW_COMMIT
+
+          # Force push
+          git push -f origin main
+
+          # Clean up
+          git reflog expire --expire=now --all
+          git gc --prune=now --aggressive

@@ -1,0 +1,12 @@
+# [Blocked TLDs]
+.xxx
+.sex
+
+# [contaboserver.net]
+contaboserver.net
+vmi2204261.contaboserver.net
+109.123.237.33
+
+# [cox.net]
+wsip-70-184-161-172.hr.hr.cox.net
+70.184.161.172
