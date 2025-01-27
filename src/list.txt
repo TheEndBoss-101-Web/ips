@@ -1,0 +1,11 @@
+#Title: IPS-Collection / Adblock Collection
+#Description: An ad filter subscription that summarizes multiple ad-blocking filter rules, updated every 20 minutes to ensure timely synchronization with upstream to reduce false positives.
+#Homepage: https://github.com/TheEndBoss-101-Web/ips
+#LICENSE1: https://github.com/TheEndBoss-101-Web/ips/blob/main/LICENSE-GPL 3.0
+#LICENSE2: https://github.com/TheEndBoss-101-Web/ips/blob/main/LICENSE-CC-BY-NC-SA 4.0
+#This code is based on https://github.com/REIJI007/Adblock-Rule-Collection/
+#Generated on: {timestamp}
+#Number of valid rules: {len(rules)}
+#This file is the base file for genuration.
+
+0.0.0.0 test.example.com
