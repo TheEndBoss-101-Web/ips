@@ -1,11 +1,6 @@
 name: Clear Git History
 on:
   workflow_dispatch:
-    inputs:
-      commit_message:
-        description: 'Commit message for the new initial commit'
-        required: true
-        default: 'chore: reset repository history'
 
 jobs:
   clear-history:
