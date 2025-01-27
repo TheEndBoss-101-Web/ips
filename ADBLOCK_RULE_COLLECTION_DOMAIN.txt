@@ -1,10 +1,11 @@
 
 #Title: Adblock-Rule-Collection-Domain
 #Description: A list of domains collected from multiple adblock filter rules, updated every 20 minutes to ensure real-time synchronization with upstream sources and reduce false positives.
-#Homepage: https://github.com/REIJI007/Adblock-Rule-Collection
-#LICENSE1: https://github.com/REIJI007/Adblock-Rule-Collection/blob/main/LICENSE-GPL 3.0
-#LICENSE2: https://github.com/REIJI007/Adblock-Rule-Collection/blob/main/LICENSE-CC-BY-NC-SA 4.0
-#Generated Time: 2025-01-28 01:48:34
+#Homepage: https://github.com/TheEndBoss-101-Web/ips
+#LICENSE1: https://github.com/TheEndBoss-101-Web/ips/blob/main/LICENSE-GPL 3.0
+#LICENSE2: https://github.com/TheEndBoss-101-Web/ips/blob/main/LICENSE-CC-BY-NC-SA 4.0
+#This code is based on https://github.com/REIJI007/Adblock-Rule-Collection/
+#Generated Time: 2025-01-28 02:14:36
 #Valid Domains Count: 1
 
 test.example.com
